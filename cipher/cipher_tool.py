@@ -16,18 +16,23 @@ def caesar(text: str, shift: int) -> str:
 # can read text files
 
 def read_file(path: str) -> str:
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return f.read()
-    except FileNotFoundError:
-        print(f"error: file not found: {path}", file=sys.stderr)
-        sys.exit(1)
-    except PermissionError:
-        print(f"error: permission denied: {path}", file=sys.stderr)
-        sys.exit(1)
-    except OSError as e:
-        print(f"error: could not read file: {e}", file=sys.stderr)
-        sys.exit(1)
+    for encoding in ("utf-8-sig", "utf-16"):
+        try:
+            with open(path, "r", encoding=encoding) as f:
+                return f.read()
+        except UnicodeDecodeError:
+            continue
+        except FileNotFoundError:
+            print(f"error: file not found: {path}", file=sys.stderr)
+            sys.exit(1)
+        except PermissionError:
+            print(f"error: permission denied: {path}", file=sys.stderr)
+            sys.exit(1)
+        except OSError as e:
+            print(f"error: could not read file: {e}", file=sys.stderr)
+            sys.exit(1)
+    print(f"error: could not decode file as text: {path}", file=sys.stderr)
+    sys.exit(1)
 
 
 def main():
